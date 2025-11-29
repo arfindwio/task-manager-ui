@@ -32,7 +32,7 @@ export const TaskForm = () => {
   }, [message]);
 
   return (
-    <div className="col-span-3 flex flex-col gap-4 rounded-md bg-white p-6 shadow-md sm:col-span-1">
+    <div className="col-span-3 flex h-fit flex-col gap-4 rounded-md bg-white p-6 shadow-md sm:col-span-1">
       <h2 className="text-2xl font-bold text-black">Create New Task</h2>
 
       {message && (
