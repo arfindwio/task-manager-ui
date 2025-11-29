@@ -1,0 +1,62 @@
+import { useEffect, useState } from "react";
+import { PDFViewer } from "@react-pdf/renderer";
+
+import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { fetchTasks } from "../features/tasks/tasksThunks";
+
+// Components
+import { TaskForm } from "../components/TaskForm";
+import { TaskList } from "../components/TaskList";
+import { PDFPreviewModal } from "../components/PDFPreviewModal";
+import { TaskReportPDF } from "../components/pdf/TaskReportPDF";
+
+// Icons
+import { MdOutlineFileDownload } from "react-icons/md";
+
+export const Home = () => {
+  const dispatch = useAppDispatch();
+  const { tasks, loading } = useAppSelector((state) => state.tasks);
+  const [showPreview, setShowPreview] = useState(false);
+
+  useEffect(() => {
+    dispatch(fetchTasks());
+  }, [dispatch]);
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <header className="mx-auto w-full">
+        <div className="mx-auto w-[90%] max-w-7xl pt-8">
+          <div className="flex w-full flex-col items-center justify-between border-b-2 pb-2 sm:flex-row sm:pb-0">
+            <h2 className="py-2 text-center text-3xl font-bold text-blue-500 sm:text-start">
+              Task Management Dashboard
+            </h2>
+            <button
+              onClick={() => setShowPreview(true)}
+              className="flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-white hover:bg-blue-800"
+            >
+              <MdOutlineFileDownload size={20} />
+              <p className="font-semibold">Download PDF</p>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <section className="mx-auto w-full py-8">
+        <div className="mx-auto w-[90%] max-w-7xl">
+          <div className="grid w-full grid-cols-3 gap-8">
+            <TaskForm />
+            <TaskList tasks={tasks} loading={loading} />
+          </div>
+        </div>
+      </section>
+
+      {showPreview && (
+        <PDFPreviewModal onClose={() => setShowPreview(false)}>
+          <PDFViewer width="100%" height="100%">
+            <TaskReportPDF tasks={tasks} />
+          </PDFViewer>
+        </PDFPreviewModal>
+      )}
+    </div>
+  );
+};
