@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
-import { PDFViewer } from "@react-pdf/renderer";
 
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { fetchTasks } from "../features/tasks/tasksThunks";
+import { createTaskPdf } from "../utils/createTaskPdf";
 
 // Components
 import { TaskForm } from "../components/TaskForm";
 import { TaskList } from "../components/TaskList";
 import { PDFPreviewModal } from "../components/PDFPreviewModal";
-import { TaskReportPDF } from "../components/pdf/TaskReportPDF";
 
 // Icons
 import { MdOutlineFileDownload } from "react-icons/md";
@@ -17,10 +16,20 @@ export const Home = () => {
   const dispatch = useAppDispatch();
   const { tasks, loading } = useAppSelector((state) => state.tasks);
   const [showPreview, setShowPreview] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string>("");
 
   useEffect(() => {
     dispatch(fetchTasks());
   }, [dispatch]);
+
+  const handlePreviewPdf = () => {
+    const doc = createTaskPdf(tasks);
+    const blob = doc.output("blob");
+    const url = URL.createObjectURL(blob);
+
+    setPdfUrl(url);
+    setShowPreview(true);
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -31,7 +40,7 @@ export const Home = () => {
               Task Management Dashboard
             </h2>
             <button
-              onClick={() => setShowPreview(true)}
+              onClick={handlePreviewPdf}
               className="flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-white hover:bg-blue-800"
             >
               <MdOutlineFileDownload size={20} />
@@ -52,9 +61,7 @@ export const Home = () => {
 
       {showPreview && (
         <PDFPreviewModal onClose={() => setShowPreview(false)}>
-          <PDFViewer width="100%" height="100%">
-            <TaskReportPDF tasks={tasks} />
-          </PDFViewer>
+          <iframe src={pdfUrl} width="100%" height="100%" title="PDF Preview" />
         </PDFPreviewModal>
       )}
     </div>
